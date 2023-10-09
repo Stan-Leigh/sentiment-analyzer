@@ -22,22 +22,28 @@ openai.api_key = st.secrets["api_key"]
 # Sentiment analyzer
 text = st.text_input("Enter text that you want to analyze its sentiment")
 
-prompt = f"Sentiment analysis of the following text: {text}"
+prompt = "You are a helpful assistant that analyzes text for sentiment. You are able to call out texts that have mixed sentiments. \
+          You should outputs one of these options: 'Positive', 'Negative', 'Neutral', 'Mixed' or 'Not related'."
 
 try:
     if st.button("Get result", key="sentiment"):
-        # Use GPT-3 to get an answer
-        response = openai.Completion.create(engine="text-davinci-003",
-                                                prompt=prompt,
+        # Use GPT-3.5 to get an answer
+        response = openai.ChatCompletion.create(
+                                                model="gpt-3.5-turbo",
+                                                messages=[{"role": "system", "content": prompt},
+                                                    {"role": "user", "content": "I love pizza"},
+                                                    {"role": "assistant","content": "Positive"},
+                                                    {"role": "user", "content": "I love pizza but I don't like jam"},
+                                                    {"role": "assistant", "content": "Mixed"},
+                                                    {"role": "user", "content": text}],
                                                 temperature=0,
-                                                top_p=1,
                                                 max_tokens=20,
+                                                top_p=1,
                                                 frequency_penalty=0,
-                                                presence_penalty=0,
-                                                stop=["\n"])
-        
+                                                presence_penalty=0
+                                                )
         # Print the result
-        res = response["choices"][0]["text"]
+        res = response['choices'][0]['message']['content']
         st.write(res)
 
 except Exception as error: 
@@ -52,18 +58,18 @@ prompt = f"Generate a tweet using the following keywords: {keywords}. The sentim
 
 try:
     if st.button("Get result", key="single"):
-        # Use GPT-3 to get an answer
-        response = openai.Completion.create(engine="text-davinci-003",
-                                                prompt=prompt,
+        # Use GPT-3.5 to get an answer
+        response = openai.ChatCompletion.create(
+                                                model="gpt-3.5-turbo",
+                                                messages=[{"role": "user", "content": prompt}],
                                                 temperature=1,
-                                                top_p=1,
                                                 max_tokens=150,
+                                                top_p=1,
                                                 frequency_penalty=0,
-                                                presence_penalty=0,
-                                                stop=["\n"])
-        
+                                                presence_penalty=0
+                                                )
         # Print the result
-        res = response["choices"][0]["text"]
+        res = response['choices'][0]['message']['content']
         st.write(res)
 
 except Exception as error: 
@@ -81,17 +87,18 @@ prompt = f"Generate {num_texts} tweets using the following keywords: {keywords}.
 
 try:
     if st.button("Get result", key="multi"):
-        # Use GPT-3 to get an answer
-        response = openai.Completion.create(engine="text-davinci-003",
-                                                prompt=prompt,
-                                                temperature=2,
+        # Use GPT-3.5 to get an answer
+        response = openai.ChatCompletion.create(
+                                                model="gpt-3.5-turbo",
+                                                messages=[{"role": "user", "content": prompt}],
+                                                temperature=1,
+                                                max_tokens=2000,
                                                 top_p=1,
-                                                max_tokens=300,
                                                 frequency_penalty=0,
-                                                presence_penalty=0)
-        
+                                                presence_penalty=0
+                                                )
         # Print the result
-        res = response["choices"][0]["text"]
+        res = response['choices'][0]['message']['content']
         st.write(res)
 
 except Exception as error: 
@@ -167,8 +174,9 @@ text1 = st.text_area("Enter the reference text")
 text2 = st.text_area("Enter the text you want to compare the reference text to")
 
 prompt1 = f"You are a helpful assistant that analyzes text for sentiment. You are able to call out duplicates and other forms of texts \
-    that is not genuine. You are also able to call out texts that have mixed sentiments. You should outputs one of these options: \
-        'Positive', 'Negative', 'Neutral' or 'Not related' as the sentiment of a text with respect to this text \"{text1}\""
+            that is not genuine. You are also able to call out texts that have mixed sentiments. You should outputs one of these options: \
+           'Positive', 'Negative', 'Neutral', 'Mixed' or 'Not related' as the sentiment of a text with respect to the text below.\
+            \n\nText:  \"\"\"\n{text1}\n\"\"\""
 
 try:
     if st.button("Get result", key="relatability"):
