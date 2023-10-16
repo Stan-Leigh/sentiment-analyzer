@@ -168,15 +168,56 @@ except Exception as error:
 #     st.warning(error)
 
 
-# TEXT RELATABILITY
+# # TEXT RELATABILITY 1
+# st.header("Text Relatability")
+# text1 = st.text_area("Enter the reference text")
+# text2 = st.text_area("Enter the text you want to compare the reference text to")
+
+# prompt1 = f"You are a helpful assistant that analyzes text for sentiment. You are able to call out duplicates and other forms of texts \
+#             that is not genuine. You are also able to call out texts that have mixed sentiments. You should output one of these options: \
+#            'Positive', 'Negative', 'Neutral', 'Mixed' or 'Not related' as the sentiment of a text with respect to the text below.\
+#             \n\nText:  \"\"\"\n{text1}\n\"\"\""
+
+# try:
+#     if st.button("Get result", key="relatability"):
+#         # Use GPT-3 to get an answer
+#         response = openai.ChatCompletion.create(
+#                                                 model="gpt-3.5-turbo",
+#                                                 messages=[{"role": "system", "content": prompt1},
+#                                                         {"role": "user", "content": "When is the bootcamp starting?"},
+#                                                         {"role": "assistant", "content": "Neutral"},
+#                                                         {"role": "user", "content": text2}],
+#                                                 temperature=1,
+#                                                 max_tokens=256,
+#                                                 top_p=1,
+#                                                 frequency_penalty=0,
+#                                                 presence_penalty=0
+#                                                 )
+
+#         # Print the result
+#         res = response['choices'][0]['message']['content']
+#         st.write(res)
+
+# except Exception as error: 
+#     st.warning(error)
+
+
+# TEXT RELATABILITY 2
 st.header("Text Relatability")
 text1 = st.text_area("Enter the reference text")
 text2 = st.text_area("Enter the text you want to compare the reference text to")
 
-prompt1 = f"You are a helpful assistant that analyzes text for sentiment. You are able to call out duplicates and other forms of texts \
-            that is not genuine. You are also able to call out texts that have mixed sentiments. You should outputs one of these options: \
-           'Positive', 'Negative', 'Neutral', 'Mixed' or 'Not related' as the sentiment of a text with respect to the text below.\
-            \n\nText:  \"\"\"\n{text1}\n\"\"\""
+prompt1 = f"You are a helpful assistant that analyzes text for sentiment. You will be provided a piece of text and you are to output \
+            the sentiment of this text with respect to the reference text that is provided in double quotes below. \
+            The reference text is \"{text1}\" \
+            You can output one of these six options: \
+            1. 'Positive sentiment', if the sentiment of the text with respect to the reference text is positive. \
+            2. 'Negative sentiment', if the sentiment of the text with respect to the reference text is negative. \
+            3. 'Not related', if the text is not related in any way to the reference text. \
+            4. 'Neutral', if the sentiment of the text with respect to the reference text is neutral. \
+            5. 'Mixed sentiment', if the sentiment of the text with respect to the reference text is both positive and negative. \
+            6. 'Duplicated', if the text is a duplicate of itself or it contains too many repetitive words. \
+        "
 
 try:
     if st.button("Get result", key="relatability"):
