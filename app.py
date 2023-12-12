@@ -245,7 +245,7 @@ except Exception as error:
 
 # IMAGE GENERATION
 st.header("Image Generation")
-text = st.text_input("Enter the description of the image you want to create. Example: a white siamese cat")
+text = st.text_input("Enter the description of the image you want to create", "a white siamese cat")
 
 try:
     response = openai.Image.create(
