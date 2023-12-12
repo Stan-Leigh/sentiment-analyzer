@@ -241,3 +241,23 @@ try:
 
 except Exception as error: 
     st.warning(error)
+
+
+# IMAGE GENERATION
+st.header("Image Generation")
+text = st.text_input("Enter the description of the image you want to create", "a white siamese cat")
+
+try:
+    response = openai.Image.create(
+    model="dall-e-3",
+    prompt=text,
+    size="1024x1024",
+    quality="standard",
+    n=1,
+    )
+
+except Exception as error: 
+    st.warning(error)
+
+image_url = response.data[0].url
+st.image(image_url)
