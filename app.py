@@ -1,6 +1,8 @@
 import streamlit as st
-# import numpy as np
+import numpy as np
+import cv2 as cv
 import openai
+from PIL import Image
 
 # Page title
 st.markdown("""
@@ -82,6 +84,7 @@ num_texts = st.radio("How many samples do you want to generate?", [2, 3, 4, 5], 
 keywords = st.text_area("Enter as many key words that should be used in generating the different texts. \
                         More keywords give a more robust answer.")
 sentiment = st.text_input("What should be the sentiment of the texts? (Positive, Negative or Neutral)")
+max_tokens = 95 * num_texts
 
 prompt = f"Generate {num_texts} tweets using the following keywords: {keywords}. The sentiment of the tweets should be {sentiment}."
 
@@ -92,7 +95,7 @@ try:
                                                 model="gpt-3.5-turbo",
                                                 messages=[{"role": "user", "content": prompt}],
                                                 temperature=1,
-                                                max_tokens=2000,
+                                                max_tokens=max_tokens,
                                                 top_p=1,
                                                 frequency_penalty=0,
                                                 presence_penalty=0
@@ -243,15 +246,16 @@ except Exception as error:
     st.warning(error)
 
 
-# IMAGE GENERATION
+# IMAGE GENERATION DALL-E 3
 st.header("Image Generation")
 text = st.text_input("Enter the description of the image you want to create", "a white siamese cat")
+image_size = st.radio("What size should the generated image have?", ['1024x1024', '1024x1792', '1792x1024'], horizontal=True)
 
 try:
     response = openai.Image.create(
     model="dall-e-3",
     prompt=text,
-    size="1024x1024",
+    size=image_size,
     quality="standard",
     n=1,
     )
@@ -260,4 +264,89 @@ except Exception as error:
     st.warning(error)
 
 image_url = response.data[0].url
-st.image(image_url)
+st.image(image_url, caption=text)
+
+# # IMAGE GENERATION DALL-E 2
+# st.header("Image Generation")
+# text = st.text_input("Enter the description of the image you want to create", "a white siamese cat")
+# image_size = st.radio("What size should the generated image have?", ['256x256', '512x512', '1024x1024', '1024x1792', '1792x1024'], horizontal=True)
+
+# try:
+#     response = openai.Image.create(
+#     model="dall-e-2",
+#     prompt=text,
+#     size='512x512',
+#     quality="standard",
+#     n=1,
+#     )
+
+# except Exception as error: 
+#     st.warning(error)
+
+# image_url = response.data[0].url
+# st.image(image_url, caption=text)
+
+
+# # IMAGE EDITING DALL-E 2
+# st.header("Image Editing")
+# text = st.text_input("Enter the description of the image, including parts you want edited inside.", "An indoor lounge area with a brown dog swimming in the pool")
+# uploaded_file = st.file_uploader("Upload your image in .png format ", type=["png"], key='file')
+# uploaded_mask = st.file_uploader("Upload your image with mask in .png format ", type=["png"], key='mask')
+# image_size = st.radio("What size should the generated image have?", ['256x256', '512x512', '1024x1024'], horizontal=True)
+
+# # get resizing tuple
+# resize_cv = 0
+# if image_size == '256x256':
+#     resize_cv = (256, 256)
+# elif image_size == '512x512':
+#     resize_cv = (512, 512)
+# else:
+#     resize_cv = (1024, 1024)
+
+# # Process the files uploaded
+# # image_cv = cv.imdecode(np.asarray(bytearray(uploaded_file.read()), np.uint8), 1)
+# # image_mask_cv = cv.imdecode(np.asarray(bytearray(uploaded_mask.read()), np.uint8), 1)
+
+
+# if uploaded_file is not None and uploaded_mask is not None:
+#     # Process the file uploaded
+#     image = Image.open(uploaded_file)
+#     img_array = np.array(image)
+#     cv.imwrite('file.png', cv.cvtColor(img_array, cv.COLOR_RGB2BGR))
+
+#     # Resize the image
+#     image_cv = cv.imread('file.png')
+#     image_cv = cv.resize(image_cv, resize_cv)
+
+#     # Process the mask uploaded
+#     mask = Image.open(uploaded_mask)
+#     mask_array = np.array(mask)
+#     cv.imwrite('mask.png', cv.cvtColor(mask_array, cv.COLOR_RGB2BGR))
+
+#     # Resize the mak
+#     image_mask_cv = cv.imread('mask.png')
+#     image_mask_cv = cv.resize(image_mask_cv, resize_cv)
+
+#     try:
+#         response = openai.Image.create_edit(
+#             model="dall-e-2",
+#             image=image_cv,
+#             mask=image_mask_cv,
+#             prompt=text,
+#             n=1,
+#             size=image_size
+#         )
+
+#     except Exception as error: 
+#         st.warning(error)
+
+#     # Get output
+#     image_url = response.data[0].url
+#     st.image(image_url)
+# else:
+#     st.write("Upload a file and its masked file")
+
+# The uploaded image and mask must both be square PNG images less than 4MB in size, 
+# and also must have the same dimensions as each other. 
+# The non-transparent areas of the mask are not used when generating the output, 
+# so they don’t necessarily need to match the original image like the example above.
